@@ -18,6 +18,8 @@
 
 package com.example.compose.jetchat.conversation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -88,6 +90,7 @@ import com.example.compose.jetchat.components.JetchatAppBar
 import com.example.compose.jetchat.data.exampleUiState
 import com.example.compose.jetchat.theme.JetchatTheme
 import kotlinx.coroutines.launch
+import kotlin.streams.toList
 
 /**
  * Entry point for a conversation screen.
@@ -97,6 +100,7 @@ import kotlinx.coroutines.launch
  * @param modifier [Modifier] to apply to this layout node
  * @param onNavIconPressed Sends an event up when the user clicks on the menu
  */
+@RequiresApi(Build.VERSION_CODES.N)
 @OptIn(ExperimentalMaterial3Api::class, BetaOpenAI::class)
 @Composable
 fun ConversationContent(
@@ -107,6 +111,7 @@ fun ConversationContent(
 ) {
     val authorMe = stringResource(R.string.author_me)
     val timeNow = stringResource(id = R.string.now)
+    var systemChat = stringResource(R.string.system_chat)
 
     val scrollState = rememberLazyListState()
     val topBarState = rememberTopAppBarState()
@@ -129,7 +134,10 @@ fun ConversationContent(
             .exclude(WindowInsets.ime),
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { paddingValues ->
-        Column(Modifier.fillMaxSize().padding(paddingValues)) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(paddingValues)) {
             Messages(
                 messages = uiState.messages,
                 navigateToProfile = navigateToProfile,
@@ -143,8 +151,10 @@ fun ConversationContent(
                     )
 
                     scope.launch {
+                        val messageHis = uiState.messages.stream().filter{it.author == authorMe}
+                            .map(Message::content).toList().reversed()
                         uiState.addMessage(
-                            Message(authorMe, getChatResult(content), timeNow)
+                            Message(systemChat, getChatResult(messageHis), timeNow)
                         )
                     }
                 },
@@ -155,7 +165,9 @@ fun ConversationContent(
                 },
                 // let this element handle the padding so that the elevation is shown behind the
                 // navigation bar
-                modifier = Modifier.navigationBarsPadding().imePadding()
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .imePadding()
             )
         }
     }

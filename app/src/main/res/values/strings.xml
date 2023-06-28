@@ -38,6 +38,8 @@
     <string name="emojis_label">Emojis</string>
     <string name="stickers_label">Stickers</string>
 
+    <string name="system_chat">system</string>
+
     <string name="message">Message</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="profile_error">There was an error loading the profile</string>
