@@ -80,6 +80,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.aallam.openai.api.BetaOpenAI
+import com.aallam.openai.api.chat.ChatCompletion
+import com.aallam.openai.api.chat.ChatCompletionRequest
+import com.aallam.openai.api.chat.ChatMessage
+import com.aallam.openai.api.chat.ChatRole
+import com.aallam.openai.api.completion.CompletionRequest
+import com.aallam.openai.api.completion.TextCompletion
+import com.aallam.openai.api.logging.LogLevel
+import com.aallam.openai.api.model.ModelId
+import com.aallam.openai.client.LoggingConfig
+import com.aallam.openai.client.OpenAI
 import com.example.compose.jetchat.FunctionalityNotAvailablePopup
 import com.example.compose.jetchat.R
 import com.example.compose.jetchat.components.JetchatAppBar
@@ -95,7 +106,7 @@ import kotlinx.coroutines.launch
  * @param modifier [Modifier] to apply to this layout node
  * @param onNavIconPressed Sends an event up when the user clicks on the menu
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, BetaOpenAI::class)
 @Composable
 fun ConversationContent(
     uiState: ConversationUiState,
@@ -139,6 +150,31 @@ fun ConversationContent(
                     uiState.addMessage(
                         Message(authorMe, content, timeNow)
                     )
+
+                    scope.launch {
+                        val openai = OpenAI(
+                            token = "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",
+                            logging = LoggingConfig(LogLevel.All)
+                        )
+                        val chatCompletionRequest = ChatCompletionRequest(
+                            model = ModelId("gpt-3.5-turbo"),
+                            messages = listOf(
+                                ChatMessage(
+                                    role = ChatRole.System,
+                                    content = "You are a helpful assistant!"
+                                ),
+                                ChatMessage(
+                                    role = ChatRole.User,
+                                    content = content
+                                )
+                            )
+                        )
+                        val completion: ChatCompletion =
+                            openai.chatCompletion(chatCompletionRequest)
+                        uiState.addMessage(
+                            Message(authorMe, completion.choices[0].message.toString(), timeNow)
+                        )
+                    }
                 },
                 resetScroll = {
                     scope.launch {
