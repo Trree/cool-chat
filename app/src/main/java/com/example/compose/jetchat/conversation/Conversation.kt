@@ -83,6 +83,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.aallam.openai.api.BetaOpenAI
+import com.aallam.openai.api.chat.ChatRole.Companion.Assistant
+import com.aallam.openai.api.chat.ChatRole.Companion.User
 import com.example.compose.jetchat.FunctionalityNotAvailablePopup
 import com.example.compose.jetchat.R
 import com.example.compose.jetchat.chatgpt.getChatResult
@@ -90,7 +92,6 @@ import com.example.compose.jetchat.components.JetchatAppBar
 import com.example.compose.jetchat.data.exampleUiState
 import com.example.compose.jetchat.theme.JetchatTheme
 import kotlinx.coroutines.launch
-import kotlin.streams.toList
 
 /**
  * Entry point for a conversation screen.
@@ -111,7 +112,7 @@ fun ConversationContent(
 ) {
     val authorMe = stringResource(R.string.author_me)
     val timeNow = stringResource(id = R.string.now)
-    var systemChat = stringResource(R.string.system_chat)
+    val assistant = stringResource(R.string.assistant_chat)
 
     val scrollState = rememberLazyListState()
     val topBarState = rememberTopAppBarState()
@@ -147,14 +148,11 @@ fun ConversationContent(
             UserInput(
                 onMessageSent = { content ->
                     uiState.addMessage(
-                        Message(authorMe, content, timeNow)
+                        Message(authorMe, User, content, timeNow)
                     )
-
                     scope.launch {
-                        val messageHis = uiState.messages.stream().filter{it.author == authorMe}
-                            .map(Message::content).toList().reversed()
                         uiState.addMessage(
-                            Message(systemChat, getChatResult(messageHis), timeNow)
+                            Message(assistant, Assistant, getChatResult(uiState.messages), timeNow)
                         )
                     }
                 },

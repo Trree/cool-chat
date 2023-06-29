@@ -16,14 +16,18 @@
 
 package com.example.compose.jetchat.data
 
+import com.aallam.openai.api.BetaOpenAI
+import com.aallam.openai.api.chat.ChatRole.Companion.Assistant
 import com.example.compose.jetchat.R
 import com.example.compose.jetchat.conversation.ConversationUiState
 import com.example.compose.jetchat.conversation.Message
 import com.example.compose.jetchat.profile.ProfileScreenState
 
+@OptIn(BetaOpenAI::class)
 private val initialMessages = listOf(
     Message(
         "system",
+        Assistant,
         "You are a helpful assistant.",
         "8:07 PM"
     )
