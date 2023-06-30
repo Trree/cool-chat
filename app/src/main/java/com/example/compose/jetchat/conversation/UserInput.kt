@@ -94,6 +94,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.compose.jetchat.FunctionalityNotAvailablePopup
 import com.example.compose.jetchat.R
+import com.example.compose.jetchat.chatgpt.RoleTable
 
 enum class InputSelector {
     NONE,
@@ -450,7 +451,7 @@ fun RoleSelector(
             .verticalScroll(rememberScrollState())
             .semantics { contentDescription = a11yLabel }
     ) {
-        EmojiTable(onTextAdded, modifier = Modifier.padding(8.dp))
+        RoleTable(onTextAdded, modifier = Modifier.padding(8.dp))
     }
 
 
