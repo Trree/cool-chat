@@ -146,16 +146,18 @@ fun ConversationContent(
                 scrollState = scrollState
             )
             UserInput(
-                onMessageSent = { content ->
+                onMessageSent = {chatRole, content ->
                     uiState.addMessage(
-                        Message(authorMe, User, content, timeNow)
+                        Message(authorMe, chatRole, content, timeNow)
                     )
                     scope.launch {
-                        val result = getChatResult(uiState.messages)
-                        if (result.isNotEmpty()) {
-                            uiState.addMessage(
-                                Message(assistant, Assistant, result, timeNow)
-                            )
+                        if (chatRole == User) {
+                            val result = getChatResult(uiState.messages)
+                            if (result.isNotEmpty()) {
+                                uiState.addMessage(
+                                    Message(assistant, Assistant, result, timeNow)
+                                )
+                            }
                         }
                     }
                 },
@@ -505,6 +507,7 @@ fun ClickableMessage(
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.N)
 @Preview
 @Composable
 fun ConversationPreview() {

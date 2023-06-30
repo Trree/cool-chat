@@ -17,9 +17,11 @@ import androidx.compose.ui.unit.sp
 
 private const val ROLE_COLUMNS = 5
 
+//todo 支持直接输出，而不是先输出到输入框中
 @Composable
 fun RoleTable(
     onTextAdded: (String) -> Unit,
+    onMessageSent: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier.fillMaxWidth()) {
@@ -37,7 +39,10 @@ fun RoleTable(
                     val role = roleList[index]
                     Text(
                         modifier = Modifier
-                            .clickable(onClick = { onTextAdded(role.second) })
+                            .clickable(onClick = {
+                                onTextAdded(role.second)
+                                onMessageSent()
+                            })
                             .sizeIn(minWidth = 42.dp, minHeight = 42.dp)
                             .padding(8.dp),
                         text = role.first,
@@ -52,8 +57,8 @@ fun RoleTable(
     }
 }
 
-
-public val roles = mapOf(
+//todo 支持数据库存储更新
+private val roles = mapOf(
     "Software" to "I want you to act as a software developer. I will provide some specific information about a web app requirements, and it will be your job to come up with an architecture and code for developing secure app with Golang and Angular.",
     "travel guide" to "I want you to act as a travel guide. I will write you my location and you will suggest a place to visit near my location. In some cases, I will also give you the type of places I will visit. You will also suggest me places of similar type that are close to my first location.",
     "assistant" to "You are a helpful assistant."
