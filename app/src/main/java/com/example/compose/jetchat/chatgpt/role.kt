@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.sp
 
 private const val ROLE_COLUMNS = 5
 
-//todo 支持直接输出，而不是先输出到输入框中
 @Composable
 fun RoleTable(
     onTextAdded: (String) -> Unit,
