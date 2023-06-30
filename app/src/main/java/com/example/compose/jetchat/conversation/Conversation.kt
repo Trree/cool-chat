@@ -88,6 +88,8 @@ import com.aallam.openai.api.chat.ChatRole.Companion.User
 import com.example.compose.jetchat.FunctionalityNotAvailablePopup
 import com.example.compose.jetchat.R
 import com.example.compose.jetchat.chatgpt.getChatResult
+import com.example.compose.jetchat.chatgpt.getWebPageSummarize
+import com.example.compose.jetchat.chatgpt.isUrl
 import com.example.compose.jetchat.components.JetchatAppBar
 import com.example.compose.jetchat.data.exampleUiState
 import com.example.compose.jetchat.theme.JetchatTheme
@@ -152,7 +154,11 @@ fun ConversationContent(
                     )
                     scope.launch {
                         if (chatRole == User) {
-                            val result = getChatResult(uiState.messages)
+                            val result = if (isUrl(content)) {
+                                getWebPageSummarize(content)
+                            } else {
+                                getChatResult(uiState.messages)
+                            }
                             if (result.isNotEmpty()) {
                                 uiState.addMessage(
                                     Message(assistant, Assistant, result, timeNow)
