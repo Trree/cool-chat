@@ -151,9 +151,12 @@ fun ConversationContent(
                         Message(authorMe, User, content, timeNow)
                     )
                     scope.launch {
-                        uiState.addMessage(
-                            Message(assistant, Assistant, getChatResult(uiState.messages), timeNow)
-                        )
+                        val result = getChatResult(uiState.messages)
+                        if (result.isNotEmpty()) {
+                            uiState.addMessage(
+                                Message(assistant, Assistant, result, timeNow)
+                            )
+                        }
                     }
                 },
                 resetScroll = {

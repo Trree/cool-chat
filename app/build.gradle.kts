@@ -113,6 +113,7 @@ dependencies {
     implementation("io.ktor:ktor-client-serialization:1.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("io.ktor:ktor-client-core:2.3.1")
+    implementation("com.knuddels:jtokkit:0.5.1")
 
 
     debugImplementation(libs.androidx.compose.ui.test.manifest)

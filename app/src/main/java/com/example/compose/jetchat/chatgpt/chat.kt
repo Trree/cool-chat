@@ -11,27 +11,40 @@ import com.aallam.openai.api.logging.LogLevel
 import com.aallam.openai.api.model.ModelId
 import com.aallam.openai.client.LoggingConfig
 import com.aallam.openai.client.OpenAI
+import com.aallam.openai.client.OpenAIHost
 import com.example.compose.jetchat.conversation.Message
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotlin.streams.toList
 
-var MAX_WORD_NUM = 3800
+val MAX_TOKEN_NUM = 4097
 
 
 @RequiresApi(Build.VERSION_CODES.N)
 @OptIn(BetaOpenAI::class)
 suspend fun getChatResult(messages: List<Message>) : String {
 
-    val messageHis = messages.stream()
-        .map{message -> ChatMessage(message.role, message.content)}
-        .toList().reversed()
+    val useToken = 0
+    val messageHis = mutableListOf<ChatMessage>()
+    for(msg in messages) {
+        //200 作为预估的误差补偿
+        val msgTokenSize = getTokenNum(msg.content) +200
+        if (msgTokenSize + useToken > MAX_TOKEN_NUM) {
+            break
+        }
+        messageHis.add(ChatMessage(msg.role, msg.content))
+    }
+    messageHis.reverse()
 
     return getChatResultByChat(messageHis)
 }
 
 @OptIn(BetaOpenAI::class)
 suspend fun getChatResultByChat(messages : List<ChatMessage>) : String {
+    val myOpenAiHost = OpenAIHost(baseUrl = "https://api.openai.com/v1/")
     val openai = OpenAI(
         token = "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",
+        host = myOpenAiHost,
         logging = LoggingConfig(LogLevel.All)
     )
     val chatCompletionRequest = ChatCompletionRequest(
