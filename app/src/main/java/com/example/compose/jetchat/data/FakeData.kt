@@ -26,7 +26,7 @@ import com.example.compose.jetchat.profile.ProfileScreenState
 @OptIn(BetaOpenAI::class)
 private val initialMessages = listOf(
     Message(
-        "system",
+        Assistant.role,
         Assistant,
         "You are a helpful assistant.",
         "8:07 PM"

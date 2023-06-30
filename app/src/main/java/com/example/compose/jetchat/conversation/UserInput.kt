@@ -97,7 +97,7 @@ import com.example.compose.jetchat.R
 
 enum class InputSelector {
     NONE,
-    MAP,
+    ROLE,
     DM,
     EMOJI,
     PHONE,
@@ -212,7 +212,7 @@ private fun SelectorExpanded(
             InputSelector.EMOJI -> EmojiSelector(onTextAdded, focusRequester)
             InputSelector.DM -> NotAvailablePopup(onCloseRequested)
             InputSelector.PICTURE -> FunctionalityNotAvailablePanel()
-            InputSelector.MAP -> FunctionalityNotAvailablePanel()
+            InputSelector.ROLE -> RoleSelector(onTextAdded, focusRequester)
             InputSelector.PHONE -> FunctionalityNotAvailablePanel()
             else -> { throw NotImplementedError() }
         }
@@ -282,10 +282,10 @@ private fun UserInputSelector(
             description = stringResource(id = R.string.attach_photo_desc)
         )
         InputSelectorButton(
-            onClick = { onSelectorChange(InputSelector.MAP) },
+            onClick = { onSelectorChange(InputSelector.ROLE) },
             icon = Icons.Outlined.Place,
-            selected = currentInputSelector == InputSelector.MAP,
-            description = stringResource(id = R.string.map_selector_desc)
+            selected = currentInputSelector == InputSelector.ROLE,
+            description = stringResource(id = R.string.role_selector_desc)
         )
         InputSelectorButton(
             onClick = { onSelectorChange(InputSelector.PHONE) },
@@ -434,6 +434,26 @@ private fun UserInputText(
             }
         }
     }
+}
+
+@Composable
+fun RoleSelector(
+    onTextAdded: (String) -> Unit,
+    focusRequester: FocusRequester
+) {
+    val a11yLabel = stringResource(id = R.string.role_selector_desc)
+    Row(
+        modifier = Modifier
+            .focusRequester(focusRequester) // Requests focus when the Emoji selector is displayed
+            // Make the emoji selector focusable so it can steal focus from TextField
+            .focusTarget()
+            .verticalScroll(rememberScrollState())
+            .semantics { contentDescription = a11yLabel }
+    ) {
+        EmojiTable(onTextAdded, modifier = Modifier.padding(8.dp))
+    }
+
+
 }
 
 @Composable

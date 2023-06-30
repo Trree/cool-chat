@@ -13,9 +13,6 @@ import com.aallam.openai.client.LoggingConfig
 import com.aallam.openai.client.OpenAI
 import com.aallam.openai.client.OpenAIHost
 import com.example.compose.jetchat.conversation.Message
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlin.streams.toList
 
 val MAX_TOKEN_NUM = 4097
 
