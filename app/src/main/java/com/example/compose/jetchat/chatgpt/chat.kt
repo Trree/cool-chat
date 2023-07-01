@@ -13,6 +13,10 @@ import com.aallam.openai.client.LoggingConfig
 import com.aallam.openai.client.OpenAI
 import com.aallam.openai.client.OpenAIHost
 import com.example.compose.jetchat.conversation.Message
+import com.github.michaelbull.retry.policy.binaryExponentialBackoff
+import com.github.michaelbull.retry.policy.limitAttempts
+import com.github.michaelbull.retry.policy.plus
+import com.github.michaelbull.retry.retry
 
 val MAX_TOKEN_NUM = 4097
 
@@ -49,13 +53,10 @@ suspend fun getChatResultByChat(messages : List<ChatMessage>) : String {
         messages = messages
     )
 
-    val result = try {
+    val result = retry(limitAttempts(3) + binaryExponentialBackoff(base = 10L, max = 5000L)) {
         val completion: ChatCompletion =
             openai.chatCompletion(chatCompletionRequest)
         completion.choices[0].message?.content ?: ""
-    }catch (e : Exception) {
-        Log.e("jet-chat", e.toString())
-        ""
     }
 
     return result
