@@ -18,6 +18,8 @@
 
 package com.example.compose.jetchat.conversation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -80,8 +82,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.aallam.openai.api.BetaOpenAI
+import com.aallam.openai.api.chat.ChatRole.Companion.Assistant
+import com.aallam.openai.api.chat.ChatRole.Companion.User
 import com.example.compose.jetchat.FunctionalityNotAvailablePopup
 import com.example.compose.jetchat.R
+import com.example.compose.jetchat.chatgpt.getChatResult
+import com.example.compose.jetchat.chatgpt.getWebPageSummarize
+import com.example.compose.jetchat.chatgpt.isUrl
 import com.example.compose.jetchat.components.JetchatAppBar
 import com.example.compose.jetchat.data.exampleUiState
 import com.example.compose.jetchat.theme.JetchatTheme
@@ -95,7 +103,8 @@ import kotlinx.coroutines.launch
  * @param modifier [Modifier] to apply to this layout node
  * @param onNavIconPressed Sends an event up when the user clicks on the menu
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.N)
+@OptIn(ExperimentalMaterial3Api::class, BetaOpenAI::class)
 @Composable
 fun ConversationContent(
     uiState: ConversationUiState,
@@ -105,6 +114,7 @@ fun ConversationContent(
 ) {
     val authorMe = stringResource(R.string.author_me)
     val timeNow = stringResource(id = R.string.now)
+    val assistant = stringResource(R.string.assistant_chat)
 
     val scrollState = rememberLazyListState()
     val topBarState = rememberTopAppBarState()
@@ -127,7 +137,10 @@ fun ConversationContent(
             .exclude(WindowInsets.ime),
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { paddingValues ->
-        Column(Modifier.fillMaxSize().padding(paddingValues)) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(paddingValues)) {
             Messages(
                 messages = uiState.messages,
                 navigateToProfile = navigateToProfile,
@@ -135,10 +148,24 @@ fun ConversationContent(
                 scrollState = scrollState
             )
             UserInput(
-                onMessageSent = { content ->
+                onMessageSent = {chatRole, content ->
                     uiState.addMessage(
-                        Message(authorMe, content, timeNow)
+                        Message(authorMe, chatRole, content, timeNow)
                     )
+                    scope.launch {
+                        if (chatRole == User) {
+                            val result = if (isUrl(content)) {
+                                getWebPageSummarize(content)
+                            } else {
+                                getChatResult(uiState.messages)
+                            }
+                            if (result.isNotEmpty()) {
+                                uiState.addMessage(
+                                    Message(assistant, Assistant, result, timeNow)
+                                )
+                            }
+                        }
+                    }
                 },
                 resetScroll = {
                     scope.launch {
@@ -147,7 +174,9 @@ fun ConversationContent(
                 },
                 // let this element handle the padding so that the elevation is shown behind the
                 // navigation bar
-                modifier = Modifier.navigationBarsPadding().imePadding()
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .imePadding()
             )
         }
     }
@@ -484,6 +513,7 @@ fun ClickableMessage(
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.N)
 @Preview
 @Composable
 fun ConversationPreview() {

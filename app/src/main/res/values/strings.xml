@@ -38,6 +38,9 @@
     <string name="emojis_label">Emojis</string>
     <string name="stickers_label">Stickers</string>
 
+    <string name="system_chat">system</string>
+    <string name="assistant_chat">assistant</string>
+
     <string name="message">Message</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="profile_error">There was an error loading the profile</string>
@@ -55,7 +58,7 @@
     <string name="emoji_selector_bt_desc">Show Emoji selector</string>
     <string name="dm_desc">Direct Message</string>
     <string name="attach_photo_desc">Attach Photo</string>
-    <string name="map_selector_desc">Location selector</string>
+    <string name="role_selector_desc">Role</string>
     <string name="videochat_desc">Start videochat</string>
     <string name="textfield_desc">Text input</string>
     <string name="not_available">Functionality currently not available</string>

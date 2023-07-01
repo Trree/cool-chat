@@ -106,6 +106,15 @@ dependencies {
     implementation(libs.androidx.compose.ui.util)
     implementation(libs.androidx.compose.ui.viewbinding)
     implementation(libs.androidx.compose.ui.googlefonts)
+    //implementation("com.aallam.openai:openai-client:3.3.0")
+    implementation(platform("com.aallam.openai:openai-client-bom:3.3.0"))
+    implementation("com.aallam.openai:openai-client")
+    implementation("io.ktor:ktor-client-okhttp:2.3.1")
+    implementation("io.ktor:ktor-client-serialization:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    implementation("io.ktor:ktor-client-core:2.3.1")
+    implementation("com.knuddels:jtokkit:0.5.0")
+
 
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 

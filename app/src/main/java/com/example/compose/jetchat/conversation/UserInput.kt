@@ -47,10 +47,8 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AlternateEmail
-import androidx.compose.material.icons.outlined.Duo
-import androidx.compose.material.icons.outlined.InsertPhoto
 import androidx.compose.material.icons.outlined.Mood
+import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -92,12 +90,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.aallam.openai.api.BetaOpenAI
+import com.aallam.openai.api.chat.ChatRole
+import com.aallam.openai.api.chat.ChatRole.Companion.Assistant
+import com.aallam.openai.api.chat.ChatRole.Companion.User
 import com.example.compose.jetchat.FunctionalityNotAvailablePopup
 import com.example.compose.jetchat.R
+import com.example.compose.jetchat.chatgpt.RoleTable
 
 enum class InputSelector {
     NONE,
-    MAP,
+    ROLE,
     DM,
     EMOJI,
     PHONE,
@@ -109,16 +112,17 @@ enum class EmojiStickerSelector {
     STICKER
 }
 
+@OptIn(BetaOpenAI::class)
 @Preview
 @Composable
 fun UserInputPreview() {
-    UserInput(onMessageSent = {})
+    UserInput(onMessageSent = { _, _ ->  })
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, BetaOpenAI::class)
 @Composable
 fun UserInput(
-    onMessageSent: (String) -> Unit,
+    onMessageSent: (ChatRole, String) -> Unit,
     modifier: Modifier = Modifier,
     resetScroll: () -> Unit = {},
 ) {
@@ -158,7 +162,7 @@ fun UserInput(
                 onSelectorChange = { currentInputSelector = it },
                 sendMessageEnabled = textState.text.isNotBlank(),
                 onMessageSent = {
-                    onMessageSent(textState.text)
+                    onMessageSent(User, textState.text)
                     // Reset text field and close keyboard
                     textState = TextFieldValue()
                     // Move scroll to bottom
@@ -170,6 +174,14 @@ fun UserInput(
             SelectorExpanded(
                 onCloseRequested = dismissKeyboard,
                 onTextAdded = { textState = textState.addText(it) },
+                onMessageSent = {
+                    onMessageSent(Assistant, textState.text)
+                    // Reset text field and close keyboard
+                    textState = TextFieldValue()
+                    // Move scroll to bottom
+                    resetScroll()
+                    dismissKeyboard()
+                },
                 currentSelector = currentInputSelector
             )
         }
@@ -194,6 +206,7 @@ private fun TextFieldValue.addText(newString: String): TextFieldValue {
 private fun SelectorExpanded(
     currentSelector: InputSelector,
     onCloseRequested: () -> Unit,
+    onMessageSent: () -> Unit,
     onTextAdded: (String) -> Unit
 ) {
     if (currentSelector == InputSelector.NONE) return
@@ -212,7 +225,7 @@ private fun SelectorExpanded(
             InputSelector.EMOJI -> EmojiSelector(onTextAdded, focusRequester)
             InputSelector.DM -> NotAvailablePopup(onCloseRequested)
             InputSelector.PICTURE -> FunctionalityNotAvailablePanel()
-            InputSelector.MAP -> FunctionalityNotAvailablePanel()
+            InputSelector.ROLE -> RoleSelector(onTextAdded, onMessageSent, focusRequester)
             InputSelector.PHONE -> FunctionalityNotAvailablePanel()
             else -> { throw NotImplementedError() }
         }
@@ -269,30 +282,30 @@ private fun UserInputSelector(
             selected = currentInputSelector == InputSelector.EMOJI,
             description = stringResource(id = R.string.emoji_selector_bt_desc)
         )
+//        InputSelectorButton(
+//            onClick = { onSelectorChange(InputSelector.DM) },
+//            icon = Icons.Outlined.AlternateEmail,
+//            selected = currentInputSelector == InputSelector.DM,
+//            description = stringResource(id = R.string.dm_desc)
+//        )
+//        InputSelectorButton(
+//            onClick = { onSelectorChange(InputSelector.PICTURE) },
+//            icon = Icons.Outlined.InsertPhoto,
+//            selected = currentInputSelector == InputSelector.PICTURE,
+//            description = stringResource(id = R.string.attach_photo_desc)
+//        )
         InputSelectorButton(
-            onClick = { onSelectorChange(InputSelector.DM) },
-            icon = Icons.Outlined.AlternateEmail,
-            selected = currentInputSelector == InputSelector.DM,
-            description = stringResource(id = R.string.dm_desc)
+            onClick = { onSelectorChange(InputSelector.ROLE) },
+            icon = Icons.Outlined.People,
+            selected = currentInputSelector == InputSelector.ROLE,
+            description = stringResource(id = R.string.role_selector_desc)
         )
-        InputSelectorButton(
-            onClick = { onSelectorChange(InputSelector.PICTURE) },
-            icon = Icons.Outlined.InsertPhoto,
-            selected = currentInputSelector == InputSelector.PICTURE,
-            description = stringResource(id = R.string.attach_photo_desc)
-        )
-        InputSelectorButton(
-            onClick = { onSelectorChange(InputSelector.MAP) },
-            icon = Icons.Outlined.Place,
-            selected = currentInputSelector == InputSelector.MAP,
-            description = stringResource(id = R.string.map_selector_desc)
-        )
-        InputSelectorButton(
-            onClick = { onSelectorChange(InputSelector.PHONE) },
-            icon = Icons.Outlined.Duo,
-            selected = currentInputSelector == InputSelector.PHONE,
-            description = stringResource(id = R.string.videochat_desc)
-        )
+//        InputSelectorButton(
+//            onClick = { onSelectorChange(InputSelector.PHONE) },
+//            icon = Icons.Outlined.Duo,
+//            selected = currentInputSelector == InputSelector.PHONE,
+//            description = stringResource(id = R.string.videochat_desc)
+//        )
 
         val border = if (!sendMessageEnabled) {
             BorderStroke(
@@ -434,6 +447,27 @@ private fun UserInputText(
             }
         }
     }
+}
+
+@Composable
+fun RoleSelector(
+    onTextAdded: (String) -> Unit,
+    onMessageSent: () -> Unit,
+    focusRequester: FocusRequester,
+) {
+    val a11yLabel = stringResource(id = R.string.role_selector_desc)
+    Row(
+        modifier = Modifier
+            .focusRequester(focusRequester) // Requests focus when the Emoji selector is displayed
+            // Make the emoji selector focusable so it can steal focus from TextField
+            .focusTarget()
+            .verticalScroll(rememberScrollState())
+            .semantics { contentDescription = a11yLabel }
+    ) {
+        RoleTable(onTextAdded, onMessageSent, modifier = Modifier.padding(8.dp))
+    }
+
+
 }
 
 @Composable

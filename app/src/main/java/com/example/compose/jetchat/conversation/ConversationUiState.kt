@@ -18,7 +18,10 @@ package com.example.compose.jetchat.conversation
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.toMutableStateList
+import com.aallam.openai.api.BetaOpenAI
+import com.aallam.openai.api.chat.ChatRole
 import com.example.compose.jetchat.R
+import kotlinx.serialization.SerialName
 
 class ConversationUiState(
     val channelName: String,
@@ -34,10 +37,11 @@ class ConversationUiState(
 }
 
 @Immutable
-data class Message(
+data class Message @OptIn(BetaOpenAI::class) constructor(
     val author: String,
+    val role: ChatRole,
     val content: String,
     val timestamp: String,
     val image: Int? = null,
-    val authorImage: Int = if (author == "me") R.drawable.ali else R.drawable.someone_else
+    val authorImage: Int = if (author == "me") R.drawable.someone_else else R.drawable.someone_else
 )
