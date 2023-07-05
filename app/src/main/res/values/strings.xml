@@ -40,6 +40,7 @@
 
     <string name="system_chat">system</string>
     <string name="assistant_chat">assistant</string>
+    <string name="guardian_chat">guardian</string>
 
     <string name="message">Message</string>
     <string name="edit_profile">Edit Profile</string>

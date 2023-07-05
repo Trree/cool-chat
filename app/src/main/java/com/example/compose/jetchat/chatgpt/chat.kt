@@ -1,16 +1,20 @@
 package com.example.compose.jetchat.chatgpt
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.res.stringResource
 import com.aallam.openai.api.BetaOpenAI
 import com.aallam.openai.api.chat.ChatCompletion
 import com.aallam.openai.api.chat.ChatCompletionRequest
 import com.aallam.openai.api.chat.ChatMessage
+import com.aallam.openai.api.chat.ChatRole
 import com.aallam.openai.api.logging.LogLevel
 import com.aallam.openai.api.model.ModelId
 import com.aallam.openai.client.LoggingConfig
 import com.aallam.openai.client.OpenAI
 import com.aallam.openai.client.OpenAIHost
+import com.example.compose.jetchat.R
 import com.example.compose.jetchat.conversation.Message
 import com.github.michaelbull.retry.policy.binaryExponentialBackoff
 import com.github.michaelbull.retry.policy.limitAttempts
@@ -22,12 +26,14 @@ const val HIS_MESSAGE_SIZE = 4
 const val LLM_HOST = "https://api.openai.com/v1/"
 const val OPENAI_API_KEY = "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"
 
+
+
 @RequiresApi(Build.VERSION_CODES.N)
 @OptIn(BetaOpenAI::class)
 suspend fun getChatResult(messages: List<Message>) : String {
-
     val useToken = 0
     val messageHis = mutableListOf<ChatMessage>()
+    Log.i("jat-chat", messages.toString())
     for(msg in messages) {
         //200 作为预估的误差补偿
         val msgTokenSize = getTokenNum(msg.content) +200
@@ -35,6 +41,9 @@ suspend fun getChatResult(messages: List<Message>) : String {
             break
         }
         messageHis.add(ChatMessage(msg.role, msg.content))
+        if (msg.role == ChatRole.Assistant) {
+            break;
+        }
         if (messageHis.size > HIS_MESSAGE_SIZE) {
             break
         }
