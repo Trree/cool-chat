@@ -1,7 +1,6 @@
 package com.example.compose.jetchat.chatgpt
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.aallam.openai.api.BetaOpenAI
 import com.aallam.openai.api.chat.ChatCompletion
@@ -18,8 +17,10 @@ import com.github.michaelbull.retry.policy.limitAttempts
 import com.github.michaelbull.retry.policy.plus
 import com.github.michaelbull.retry.retry
 
-val MAX_TOKEN_NUM = 4097
-
+const val MAX_TOKEN_NUM = 4097
+const val HIS_MESSAGE_SIZE = 4
+const val LLM_HOST = "https://api.openai.com/v1/"
+const val OPENAI_API_KEY = "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"
 
 @RequiresApi(Build.VERSION_CODES.N)
 @OptIn(BetaOpenAI::class)
@@ -34,17 +35,19 @@ suspend fun getChatResult(messages: List<Message>) : String {
             break
         }
         messageHis.add(ChatMessage(msg.role, msg.content))
+        if (messageHis.size > HIS_MESSAGE_SIZE) {
+            break
+        }
     }
     messageHis.reverse()
-
     return getChatResultByChat(messageHis)
 }
 
 @OptIn(BetaOpenAI::class)
 suspend fun getChatResultByChat(messages : List<ChatMessage>) : String {
-    val myOpenAiHost = OpenAIHost(baseUrl = "https://api.openai.com/v1/")
+    val myOpenAiHost = OpenAIHost(baseUrl = LLM_HOST)
     val openai = OpenAI(
-        token = "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",
+        token = OPENAI_API_KEY,
         host = myOpenAiHost,
         logging = LoggingConfig(LogLevel.All)
     )

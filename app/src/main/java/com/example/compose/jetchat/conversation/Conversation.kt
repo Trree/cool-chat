@@ -19,6 +19,7 @@
 package com.example.compose.jetchat.conversation
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -74,6 +75,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LastBaseline
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
@@ -91,6 +93,10 @@ import com.example.compose.jetchat.chatgpt.getChatResult
 import com.example.compose.jetchat.chatgpt.getWebPageSummarize
 import com.example.compose.jetchat.chatgpt.isUrl
 import com.example.compose.jetchat.components.JetchatAppBar
+import com.example.compose.jetchat.data.LanguageSelector
+import com.example.compose.jetchat.data.PromptCommand
+import com.example.compose.jetchat.data.PromptCommandDatabase
+import com.example.compose.jetchat.data.TypeSelector
 import com.example.compose.jetchat.data.exampleUiState
 import com.example.compose.jetchat.theme.JetchatTheme
 import kotlinx.coroutines.launch
@@ -120,6 +126,9 @@ fun ConversationContent(
     val topBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
     val scope = rememberCoroutineScope()
+
+    val context = LocalContext.current
+    val database by lazy { PromptCommandDatabase.getDatabase(context) }
 
     Scaffold(
         topBar = {
@@ -152,6 +161,17 @@ fun ConversationContent(
                     uiState.addMessage(
                         Message(authorMe, chatRole, content, timeNow)
                     )
+                    scope.launch {
+                        val dao = database.promptCommandDao()
+                        dao.insert(
+                            PromptCommand(
+                                1, "John", TypeSelector.PROMPT_COMMAND.value,
+                                LanguageSelector.English.ordinal, 1, "hello",
+                                "gpt-3.5-turbo", 0.7, "hello"
+                            )
+                        )
+                        Log.i("jat-chat", dao.getAll().toString())
+                    }
                     scope.launch {
                         if (chatRole == User) {
                             val result = if (isUrl(content)) {
