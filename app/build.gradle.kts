@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.kapt3.base.Kapt.kapt
+
 /*
  * Copyright 2020 The Android Open Source Project
  *
@@ -17,6 +19,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    kotlin("kapt") version "1.5.31"
 }
 
 android {
@@ -80,6 +83,13 @@ android {
 }
 
 dependencies {
+    implementation("androidx.room:room-common:2.5.0")
+    implementation("androidx.room:room-ktx:2.5.0")
+    implementation("androidx.room:room-runtime:2.5.0")
+    annotationProcessor("androidx.room:room-compiler:2.5.0")
+    kapt("com.google.dagger:hilt-android-compiler:2.38.1")
+    kapt("androidx.room:room-compiler:2.5.0")
+
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
@@ -106,7 +116,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.util)
     implementation(libs.androidx.compose.ui.viewbinding)
     implementation(libs.androidx.compose.ui.googlefonts)
-    //implementation("com.aallam.openai:openai-client:3.3.0")
     implementation(platform("com.aallam.openai:openai-client-bom:3.3.0"))
     implementation("com.aallam.openai:openai-client")
     implementation("io.ktor:ktor-client-okhttp:2.3.1")
@@ -114,10 +123,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("io.ktor:ktor-client-core:2.3.1")
     implementation("com.knuddels:jtokkit:0.5.0")
+    implementation("com.klinkerapps:android-chips:1.3.2@aar")
+    implementation("com.michael-bull.kotlin-retry:kotlin-retry:1.0.9")
 
 
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.test.runner)

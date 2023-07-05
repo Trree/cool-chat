@@ -74,6 +74,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LastBaseline
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
@@ -91,9 +92,17 @@ import com.example.compose.jetchat.chatgpt.getChatResult
 import com.example.compose.jetchat.chatgpt.getWebPageSummarize
 import com.example.compose.jetchat.chatgpt.isUrl
 import com.example.compose.jetchat.components.JetchatAppBar
+import com.example.compose.jetchat.data.LanguageSelector
+import com.example.compose.jetchat.data.PromptCommand
+import com.example.compose.jetchat.data.PromptCommandDatabase
+import com.example.compose.jetchat.data.TypeSelector
 import com.example.compose.jetchat.data.exampleUiState
 import com.example.compose.jetchat.theme.JetchatTheme
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import kotlin.streams.toList
 
 /**
  * Entry point for a conversation screen.
@@ -112,14 +121,15 @@ fun ConversationContent(
     modifier: Modifier = Modifier,
     onNavIconPressed: () -> Unit = { }
 ) {
-    val authorMe = stringResource(R.string.author_me)
-    val timeNow = stringResource(id = R.string.now)
-    val assistant = stringResource(R.string.assistant_chat)
+    val guardian = stringResource(R.string.guardian_chat)
 
     val scrollState = rememberLazyListState()
     val topBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
     val scope = rememberCoroutineScope()
+
+    val context = LocalContext.current
+    val database by lazy { PromptCommandDatabase.getDatabase(context) }
 
     Scaffold(
         topBar = {
@@ -149,19 +159,41 @@ fun ConversationContent(
             )
             UserInput(
                 onMessageSent = {chatRole, content ->
+                    val timeFormat = SimpleDateFormat("h:mm a", Locale.ENGLISH)
+                    val currentTime = timeFormat.format(Date())
+
+                    var showContent = content
+                    if (chatRole == User) {
+                        val command = checkAndGetSlashString(content)
+                        if (command.isNotEmpty()) {
+                            val dao = database.promptCommandDao()
+                            val prompt = dao.getPrompt(TypeSelector.PROMPT_COMMAND.value, command)
+                            if (prompt.isNotBlank()) {
+                                val oldCommand = "/$command"
+                                showContent = content.replaceFirst(oldCommand.toRegex(), prompt)
+                            }
+                        }
+                    }
+
                     uiState.addMessage(
-                        Message(authorMe, chatRole, content, timeNow)
+                        Message(chatRole.role, chatRole, showContent, currentTime)
                     )
                     scope.launch {
                         if (chatRole == User) {
-                            val result = if (isUrl(content)) {
-                                getWebPageSummarize(content)
+                            val result = if (isUrl(showContent)) {
+                                getWebPageSummarize(showContent)
                             } else {
-                                getChatResult(uiState.messages)
+                                val messages = uiState.messages.stream().filter{it.name != guardian}.toList()
+                                getChatResult(messages)
                             }
                             if (result.isNotEmpty()) {
                                 uiState.addMessage(
-                                    Message(assistant, Assistant, result, timeNow)
+                                    Message(Assistant.role, Assistant, result, currentTime)
+                                )
+                            }
+                            else {
+                                uiState.addMessage(
+                                    Message(guardian, Assistant, "waiting ...", currentTime)
                                 )
                             }
                         }
@@ -241,6 +273,7 @@ fun ChannelNameBar(
 
 const val ConversationTestTag = "ConversationTestTag"
 
+@OptIn(BetaOpenAI::class)
 @Composable
 fun Messages(
     messages: List<Message>,
@@ -251,7 +284,7 @@ fun Messages(
     val scope = rememberCoroutineScope()
     Box(modifier = modifier) {
 
-        val authorMe = stringResource(id = R.string.author_me)
+        val authorMe = User.role
         LazyColumn(
             reverseLayout = true,
             state = scrollState,
@@ -260,11 +293,11 @@ fun Messages(
                 .fillMaxSize()
         ) {
             for (index in messages.indices) {
-                val prevAuthor = messages.getOrNull(index - 1)?.author
-                val nextAuthor = messages.getOrNull(index + 1)?.author
+                val prevAuthor = messages.getOrNull(index - 1)?.name
+                val nextAuthor = messages.getOrNull(index + 1)?.name
                 val content = messages[index]
-                val isFirstMessageByAuthor = prevAuthor != content.author
-                val isLastMessageByAuthor = nextAuthor != content.author
+                val isFirstMessageByAuthor = prevAuthor != content.name
+                val isLastMessageByAuthor = nextAuthor != content.name
 
                 // Hardcode day dividers for simplicity
                 if (index == messages.size - 1) {
@@ -281,7 +314,7 @@ fun Messages(
                     Message(
                         onAuthorClick = { name -> navigateToProfile(name) },
                         msg = content,
-                        isUserMe = content.author == authorMe,
+                        isUserMe = content.name == authorMe,
                         isFirstMessageByAuthor = isFirstMessageByAuthor,
                         isLastMessageByAuthor = isLastMessageByAuthor
                     )
@@ -336,7 +369,7 @@ fun Message(
             // Avatar
             Image(
                 modifier = Modifier
-                    .clickable(onClick = { onAuthorClick(msg.author) })
+                    .clickable(onClick = { onAuthorClick(msg.name) })
                     .padding(horizontal = 16.dp)
                     .size(42.dp)
                     .border(1.5.dp, borderColor, CircleShape)
@@ -393,7 +426,7 @@ private fun AuthorNameTimestamp(msg: Message) {
     // Combine author and timestamp for a11y.
     Row(modifier = Modifier.semantics(mergeDescendants = true) {}) {
         Text(
-            text = msg.author,
+            text = msg.name,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier
                 .alignBy(LastBaseline)
