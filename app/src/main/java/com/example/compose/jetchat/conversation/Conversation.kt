@@ -92,7 +92,10 @@ import com.example.compose.jetchat.chatgpt.getChatResult
 import com.example.compose.jetchat.chatgpt.getWebPageSummarize
 import com.example.compose.jetchat.chatgpt.isUrl
 import com.example.compose.jetchat.components.JetchatAppBar
+import com.example.compose.jetchat.data.LanguageSelector
+import com.example.compose.jetchat.data.PromptCommand
 import com.example.compose.jetchat.data.PromptCommandDatabase
+import com.example.compose.jetchat.data.TypeSelector
 import com.example.compose.jetchat.data.exampleUiState
 import com.example.compose.jetchat.theme.JetchatTheme
 import kotlinx.coroutines.launch
@@ -158,13 +161,27 @@ fun ConversationContent(
                 onMessageSent = {chatRole, content ->
                     val timeFormat = SimpleDateFormat("h:mm a", Locale.ENGLISH)
                     val currentTime = timeFormat.format(Date())
+
+                    var showContent = content
+                    if (chatRole == User) {
+                        val command = checkAndGetSlashString(content)
+                        if (command.isNotEmpty()) {
+                            val dao = database.promptCommandDao()
+                            val prompt = dao.getPrompt(TypeSelector.PROMPT_COMMAND.value, command)
+                            if (prompt.isNotBlank()) {
+                                val oldCommand = "/$command"
+                                showContent = content.replaceFirst(oldCommand.toRegex(), prompt)
+                            }
+                        }
+                    }
+
                     uiState.addMessage(
-                        Message(chatRole.role, chatRole, content, currentTime)
+                        Message(chatRole.role, chatRole, showContent, currentTime)
                     )
                     scope.launch {
                         if (chatRole == User) {
-                            val result = if (isUrl(content)) {
-                                getWebPageSummarize(content)
+                            val result = if (isUrl(showContent)) {
+                                getWebPageSummarize(showContent)
                             } else {
                                 val messages = uiState.messages.stream().filter{it.name != guardian}.toList()
                                 getChatResult(messages)

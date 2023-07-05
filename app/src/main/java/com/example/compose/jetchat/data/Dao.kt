@@ -46,6 +46,9 @@ interface PromptCommandDao {
     @Query("SELECT * FROM promptCommand")
     fun getAll(): List<PromptCommand>
 
+    @Query("SELECT prompt from  promptCommand Where type = :type and label = :command")
+    fun getPrompt(type: Int, command : String) : String
+
     @Insert
     fun insertAll(vararg users: PromptCommand)
 
