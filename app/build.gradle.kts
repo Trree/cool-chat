@@ -24,10 +24,10 @@ plugins {
 
 android {
     compileSdk = libs.versions.compileSdk.get().toInt()
-    namespace = "com.example.compose.jetchat"
+    namespace = "com.example.compose.coolchat"
 
     defaultConfig {
-        applicationId = "com.example.compose.jetchat"
+        applicationId = "com.example.compose.coolchat"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
