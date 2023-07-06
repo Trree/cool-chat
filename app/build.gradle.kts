@@ -24,10 +24,10 @@ plugins {
 
 android {
     compileSdk = libs.versions.compileSdk.get().toInt()
-    namespace = "com.example.compose.coolchat"
+    namespace = "com.github.coolchat"
 
     defaultConfig {
-        applicationId = "com.example.compose.coolchat"
+        applicationId = "com.github.coolchat"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
