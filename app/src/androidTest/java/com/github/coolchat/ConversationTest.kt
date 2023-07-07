@@ -31,7 +31,7 @@ import com.github.coolchat.conversation.ConversationContent
 import com.github.coolchat.conversation.ConversationTestTag
 import com.github.coolchat.conversation.ConversationUiState
 import com.github.coolchat.data.exampleUiState
-import com.github.coolchat.theme.JetchatTheme
+import com.github.coolchat.theme.CoolchatTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
@@ -51,7 +51,7 @@ class ConversationTest {
     fun setUp() {
         // Launch the conversation screen
         composeTestRule.setContent {
-            JetchatTheme(isDarkTheme = themeIsDark.collectAsStateWithLifecycle(false).value) {
+            CoolchatTheme(isDarkTheme = themeIsDark.collectAsStateWithLifecycle(false).value) {
                 ConversationContent(
                     uiState = conversationTestUiState,
                     navigateToProfile = { },

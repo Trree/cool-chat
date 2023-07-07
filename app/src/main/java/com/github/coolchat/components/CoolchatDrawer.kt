@@ -51,10 +51,10 @@ import androidx.compose.ui.unit.dp
 import com.github.coolchat.R
 import com.github.coolchat.data.colleagueProfile
 import com.github.coolchat.data.meProfile
-import com.github.coolchat.theme.JetchatTheme
+import com.github.coolchat.theme.CoolchatTheme
 
 @Composable
-fun JetchatDrawerContent(
+fun CoolchatDrawerContent(
     onProfileClicked: (String) -> Unit,
     onChatClicked: (String) ->
     Unit
@@ -80,7 +80,7 @@ fun JetchatDrawerContent(
 @Composable
 private fun DrawerHeader() {
     Row(modifier = Modifier.padding(16.dp), verticalAlignment = CenterVertically) {
-        JetchatIcon(
+        CoolchatIcon(
             contentDescription = null,
             modifier = Modifier.size(24.dp)
         )
@@ -192,10 +192,10 @@ fun DividerItem(modifier: Modifier = Modifier) {
 @Composable
 @Preview
 fun DrawerPreview() {
-    JetchatTheme {
+    CoolchatTheme {
         Surface {
             Column {
-                JetchatDrawerContent({}, {})
+                CoolchatDrawerContent({}, {})
             }
         }
     }
@@ -203,10 +203,10 @@ fun DrawerPreview() {
 @Composable
 @Preview
 fun DrawerPreviewDark() {
-    JetchatTheme(isDarkTheme = true) {
+    CoolchatTheme(isDarkTheme = true) {
         Surface {
             Column {
-                JetchatDrawerContent({}, {})
+                CoolchatDrawerContent({}, {})
             }
         }
     }

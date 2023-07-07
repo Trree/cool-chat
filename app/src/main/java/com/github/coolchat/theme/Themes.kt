@@ -88,7 +88,7 @@ private val JetchatLightColorScheme = lightColorScheme(
 
 @SuppressLint("NewApi")
 @Composable
-fun JetchatTheme(
+fun CoolchatTheme(
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     isDynamicColor: Boolean = true,
     content: @Composable () -> Unit

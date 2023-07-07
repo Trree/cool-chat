@@ -35,7 +35,7 @@ import androidx.test.espresso.Espresso
 import com.github.coolchat.conversation.ConversationContent
 import com.github.coolchat.conversation.KeyboardShownKey
 import com.github.coolchat.data.exampleUiState
-import com.github.coolchat.theme.JetchatTheme
+import com.github.coolchat.theme.CoolchatTheme
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
@@ -55,7 +55,7 @@ class UserInputTest {
     fun setUp() {
         // Launch the conversation screen
         composeTestRule.setContent {
-            JetchatTheme {
+            CoolchatTheme {
                 ConversationContent(
                     uiState = exampleUiState,
                     navigateToProfile = { },

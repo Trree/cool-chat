@@ -70,7 +70,7 @@ import com.github.coolchat.components.AnimatingFabContent
 import com.github.coolchat.components.baselineHeight
 import com.github.coolchat.data.colleagueProfile
 import com.github.coolchat.data.meProfile
-import com.github.coolchat.theme.JetchatTheme
+import com.github.coolchat.theme.CoolchatTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -277,7 +277,7 @@ fun ProfileFab(
 @Preview(widthDp = 640, heightDp = 360)
 @Composable
 fun ConvPreviewLandscapeMeDefault() {
-    JetchatTheme {
+    CoolchatTheme {
         ProfileScreen(meProfile)
     }
 }
@@ -285,7 +285,7 @@ fun ConvPreviewLandscapeMeDefault() {
 @Preview(widthDp = 360, heightDp = 480)
 @Composable
 fun ConvPreviewPortraitMeDefault() {
-    JetchatTheme {
+    CoolchatTheme {
         ProfileScreen(meProfile)
     }
 }
@@ -293,7 +293,7 @@ fun ConvPreviewPortraitMeDefault() {
 @Preview(widthDp = 360, heightDp = 480)
 @Composable
 fun ConvPreviewPortraitOtherDefault() {
-    JetchatTheme {
+    CoolchatTheme {
         ProfileScreen(colleagueProfile)
     }
 }
@@ -301,7 +301,7 @@ fun ConvPreviewPortraitOtherDefault() {
 @Preview
 @Composable
 fun ProfileFabPreview() {
-    JetchatTheme {
+    CoolchatTheme {
         ProfileFab(extended = true, userIsMe = false)
     }
 }

@@ -46,8 +46,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.github.coolchat.FunctionalityNotAvailablePopup
 import com.github.coolchat.R
-import com.github.coolchat.components.JetchatAppBar
-import com.github.coolchat.theme.JetchatTheme
+import com.github.coolchat.components.CoolchatAppBar
+import com.github.coolchat.theme.CoolchatTheme
 
 class ProfileFragment : Fragment() {
 
@@ -76,8 +76,8 @@ class ProfileFragment : Fragment() {
                     FunctionalityNotAvailablePopup { functionalityNotAvailablePopupShown = false }
                 }
 
-                JetchatTheme {
-                    JetchatAppBar(
+                CoolchatTheme {
+                    CoolchatAppBar(
                         // Reset the minimum bounds that are passed to the root of a compose tree
                         modifier = Modifier.wrapContentSize(),
                         onNavIconPressed = { activityViewModel.openDrawer() },
@@ -106,7 +106,7 @@ class ProfileFragment : Fragment() {
                 val userData by viewModel.userData.observeAsState()
                 val nestedScrollInteropConnection = rememberNestedScrollInteropConnection()
 
-                JetchatTheme {
+                CoolchatTheme {
                     if (userData == null) {
                         ProfileError()
                     } else {

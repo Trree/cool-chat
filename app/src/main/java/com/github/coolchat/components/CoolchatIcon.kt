@@ -29,7 +29,7 @@ import androidx.compose.ui.semantics.semantics
 import com.github.coolchat.R
 
 @Composable
-fun JetchatIcon(
+fun CoolchatIcon(
     contentDescription: String?,
     modifier: Modifier = Modifier
 ) {

@@ -29,7 +29,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import com.github.coolchat.R
 import com.github.coolchat.data.exampleUiState
-import com.github.coolchat.theme.JetchatTheme
+import com.github.coolchat.theme.CoolchatTheme
 
 class ConversationFragment : Fragment() {
 
@@ -43,7 +43,7 @@ class ConversationFragment : Fragment() {
         layoutParams = LayoutParams(MATCH_PARENT, MATCH_PARENT)
 
         setContent {
-            JetchatTheme {
+            CoolchatTheme {
                 ConversationContent(
                     uiState = exampleUiState,
                     navigateToProfile = { user ->

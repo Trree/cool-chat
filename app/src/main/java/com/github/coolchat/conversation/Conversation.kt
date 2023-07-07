@@ -91,11 +91,11 @@ import com.github.coolchat.R
 import com.github.coolchat.chatgpt.getChatResult
 import com.github.coolchat.chatgpt.getWebPageSummarize
 import com.github.coolchat.chatgpt.isUrl
-import com.github.coolchat.components.JetchatAppBar
+import com.github.coolchat.components.CoolchatAppBar
 import com.github.coolchat.data.PromptCommandDatabase
 import com.github.coolchat.data.TypeSelector
 import com.github.coolchat.data.exampleUiState
-import com.github.coolchat.theme.JetchatTheme
+import com.github.coolchat.theme.CoolchatTheme
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -225,7 +225,7 @@ fun ChannelNameBar(
     if (functionalityNotAvailablePopupShown) {
         FunctionalityNotAvailablePopup { functionalityNotAvailablePopupShown = false }
     }
-    JetchatAppBar(
+    CoolchatAppBar(
         modifier = modifier,
         scrollBehavior = scrollBehavior,
         onNavIconPressed = onNavIconPressed,
@@ -548,7 +548,7 @@ fun ClickableMessage(
 @Preview
 @Composable
 fun ConversationPreview() {
-    JetchatTheme {
+    CoolchatTheme {
         ConversationContent(
             uiState = exampleUiState,
             navigateToProfile = { }
@@ -559,7 +559,7 @@ fun ConversationPreview() {
 @Preview
 @Composable
 fun ChannelBarPrev() {
-    JetchatTheme {
+    CoolchatTheme {
         ChannelNameBar(channelName = "composers", channelMembers = 52)
     }
 }
