@@ -22,7 +22,8 @@ import com.github.michaelbull.retry.retry
 const val MAX_TOKEN_NUM = 4097
 const val HIS_MESSAGE_SIZE = 4
 const val LLM_HOST = "https://api.openai.com/v1/"
-const val OPENAI_API_KEY = "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"
+const val OPENAI_API_KEY = "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"
+const val OPENAI_MODEL = "gpt-3.5-turbo"
 
 
 
@@ -59,7 +60,7 @@ suspend fun getChatResultByChat(messages : List<ChatMessage>) : String {
         logging = LoggingConfig(LogLevel.All)
     )
     val chatCompletionRequest = ChatCompletionRequest(
-        model = ModelId("gpt-3.5-turbo"),
+        model = ModelId(OPENAI_MODEL),
         messages = messages
     )
 

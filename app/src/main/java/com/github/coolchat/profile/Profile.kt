@@ -128,14 +128,6 @@ private fun UserInfoFields(userData: ProfileScreenState, containerHeight: Dp) {
 
         ProfileProperty(stringResource(R.string.display_name), userData.displayName)
 
-        ProfileProperty(stringResource(R.string.status), userData.status)
-
-        ProfileProperty(stringResource(R.string.twitter), userData.twitter, isLink = true)
-
-        userData.timeZone?.let {
-            ProfileProperty(stringResource(R.string.timezone), userData.timeZone)
-        }
-
         // Add a spacer that always shows part (320.dp) of the fields list regardless of the device,
         // in order to always leave some content at the top.
         Spacer(Modifier.height((containerHeight - 320.dp).coerceAtLeast(0.dp)))
@@ -151,12 +143,6 @@ private fun NameAndPosition(
             userData,
             modifier = Modifier.baselineHeight(32.dp)
         )
-        Position(
-            userData,
-            modifier = Modifier
-                .padding(bottom = 20.dp)
-                .baselineHeight(24.dp)
-        )
     }
 }
 
@@ -166,16 +152,6 @@ private fun Name(userData: ProfileScreenState, modifier: Modifier = Modifier) {
         text = userData.name,
         modifier = modifier,
         style = MaterialTheme.typography.headlineSmall
-    )
-}
-
-@Composable
-private fun Position(userData: ProfileScreenState, modifier: Modifier = Modifier) {
-    Text(
-        text = userData.position,
-        modifier = modifier,
-        style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }
 

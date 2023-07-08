@@ -46,11 +46,7 @@ val colleagueProfile = ProfileScreenState(
     userId = "12345",
     photo = R.drawable.someone_else,
     name = "Taylor Brooks",
-    status = "Away",
     displayName = "taylor",
-    position = "Senior Android Dev at Openlane",
-    twitter = "twitter.com/taylorbrookscodes",
-    timeZone = "12:25 AM local time (Eastern Daylight Time)",
     commonChannels = "2"
 )
 
@@ -61,11 +57,6 @@ val meProfile = ProfileScreenState(
     userId = "me",
     photo = R.drawable.someone_else,
     name = "Ali Conors",
-    status = "Online",
     displayName = "aliconors",
-    position = "Senior Android Dev at Yearin\nGoogle Developer Expert",
-    twitter = "twitter.com/aliconors",
-    timeZone = "In your timezone",
     commonChannels = null
 )
-

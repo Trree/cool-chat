@@ -84,6 +84,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.aallam.openai.api.BetaOpenAI
+import com.aallam.openai.api.chat.ChatRole
 import com.aallam.openai.api.chat.ChatRole.Companion.Assistant
 import com.aallam.openai.api.chat.ChatRole.Companion.User
 import com.github.coolchat.FunctionalityNotAvailablePopup
@@ -96,6 +97,7 @@ import com.github.coolchat.data.PromptCommandDatabase
 import com.github.coolchat.data.TypeSelector
 import com.github.coolchat.data.exampleUiState
 import com.github.coolchat.theme.CoolchatTheme
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -157,45 +159,8 @@ fun ConversationContent(
             )
             UserInput(
                 onMessageSent = {chatRole, content ->
-                    val timeFormat = SimpleDateFormat("h:mm a", Locale.ENGLISH)
-                    val currentTime = timeFormat.format(Date())
-
-                    var showContent = content
-                    if (chatRole == User) {
-                        val command = checkAndGetSlashString(content)
-                        if (command.isNotEmpty()) {
-                            val dao = database.promptCommandDao()
-                            val prompt = dao.getPrompt(TypeSelector.PROMPT_COMMAND.value, command)
-                            if (prompt.isNotBlank()) {
-                                val oldCommand = "/$command"
-                                showContent = content.replaceFirst(oldCommand.toRegex(), prompt)
-                            }
-                        }
-                    }
-
-                    uiState.addMessage(
-                        Message(chatRole.role, chatRole, showContent, currentTime)
-                    )
-                    scope.launch {
-                        if (chatRole == User) {
-                            val result = if (isUrl(showContent)) {
-                                getWebPageSummarize(showContent)
-                            } else {
-                                val messages = uiState.messages.stream().filter{it.name != guardian}.toList()
-                                getChatResult(messages)
-                            }
-                            if (result.isNotEmpty()) {
-                                uiState.addMessage(
-                                    Message(Assistant.role, Assistant, result, currentTime)
-                                )
-                            }
-                            else {
-                                uiState.addMessage(
-                                    Message(guardian, Assistant, "waiting ...", currentTime)
-                                )
-                            }
-                        }
-                    }
+                    handleUserMessage(content, chatRole, database,
+                        uiState, scope, guardian)
                 },
                 resetScroll = {
                     scope.launch {
@@ -208,6 +173,53 @@ fun ConversationContent(
                     .navigationBarsPadding()
                     .imePadding()
             )
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.N)
+@OptIn(BetaOpenAI::class)
+private fun handleUserMessage(content: String,
+    chatRole: ChatRole, database: PromptCommandDatabase,
+    uiState: ConversationUiState, scope: CoroutineScope,
+    guardian: String,
+) {
+    val timeFormat = SimpleDateFormat("h:mm a", Locale.ENGLISH)
+    val currentTime = timeFormat.format(Date())
+
+    var showContent = content
+    if (chatRole == User) {
+        val command = checkAndGetSlashString(content)
+        if (command.isNotEmpty()) {
+            val prompt =
+                database.promptCommandDao().getPrompt(TypeSelector.PROMPT_COMMAND.value, command)
+            if (prompt.isNotBlank()) {
+                val oldCommand = "/$command"
+                showContent = content.replaceFirst(oldCommand.toRegex(), prompt)
+            }
+        }
+    }
+    uiState.addMessage(
+        Message(chatRole.role, chatRole, showContent, currentTime)
+    )
+
+    scope.launch {
+        if (chatRole == User) {
+            val result = if (isUrl(showContent)) {
+                getWebPageSummarize(showContent)
+            } else {
+                val messages = uiState.messages.stream().filter { it.name != guardian }.toList()
+                getChatResult(messages)
+            }
+            if (result.isNotEmpty()) {
+                uiState.addMessage(
+                    Message(Assistant.role, Assistant, result, currentTime)
+                )
+            } else {
+                uiState.addMessage(
+                    Message(guardian, Assistant, "waiting ...", currentTime)
+                )
+            }
         }
     }
 }
