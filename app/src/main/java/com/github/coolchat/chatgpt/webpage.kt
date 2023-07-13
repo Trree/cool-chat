@@ -1,9 +1,15 @@
 package com.github.coolchat.chatgpt
 
+import com.aallam.openai.api.BetaOpenAI
+import com.aallam.openai.api.chat.ChatRole
+import com.github.coolchat.conversation.Message
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 fun isUrl(input: String): Boolean {
     val url = input.trim()
@@ -31,7 +37,10 @@ suspend fun getWebPageContent(content : String): String {
     return getHtmlContent(url)
 }
 
-suspend fun getWebPageSummarize(url : String) :String {
+@OptIn(BetaOpenAI::class)
+suspend fun getWebPageSummarize(url: String): Message {
     val content = getWebPageContent(url)
-    return getCompletionResult(content)
+    val timeFormat = SimpleDateFormat("h:mm a", Locale.ENGLISH)
+    val currentTime = timeFormat.format(Date())
+    return Message(ChatRole.Assistant.role, ChatRole.Assistant, content, currentTime)
 }

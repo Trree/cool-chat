@@ -49,7 +49,7 @@ interface PromptDao {
     @Query("SELECT * FROM Prompts Where type = :type")
     fun getAllType(type: Int): List<Prompt>
 
-    @Query("SELECT prompt from  Prompts Where type = :type and label = :command")
+    @Query("SELECT prompt from  Prompts Where type = :type and label = :command Limit 1")
     fun getPrompt(type: Int, command : String) : String
 
     @Insert
@@ -83,8 +83,7 @@ abstract class PromptDatabase : RoomDatabase() {
                     context.applicationContext,
                     PromptDatabase::class.java,
                     "prompt.db"
-                )//.createFromAsset("prompt.db")
-                    .fallbackToDestructiveMigration()
+                ).fallbackToDestructiveMigration()
                     .allowMainThreadQueries()
                     .build()
                 INSTANCE = instance

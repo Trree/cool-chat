@@ -194,8 +194,7 @@ private fun handleUserMessage(content: String,
         if (command.isNotEmpty()) {
             val prompt = database.promptDao().getPrompt(TypeSelector.PROMPT_COMMAND.value, command)
             if (!prompt.isNullOrEmpty()) {
-                val oldCommand = "/$command"
-                showContent = content.replaceFirst(oldCommand.toRegex(), prompt)
+                showContent = content.replaceFirst(command.toRegex(), prompt)
             }
         }
     }
@@ -211,15 +210,7 @@ private fun handleUserMessage(content: String,
                 val messages = uiState.messages.stream().filter { it.name != guardian }.toList()
                 getChatResult(messages)
             }
-            if (result.isNotEmpty()) {
-                uiState.addMessage(
-                    Message(Assistant.role, Assistant, result, currentTime)
-                )
-            } else {
-                uiState.addMessage(
-                    Message(guardian, Assistant, "waiting ...", currentTime)
-                )
-            }
+            uiState.addMessage(Message(result))
         }
     }
 }

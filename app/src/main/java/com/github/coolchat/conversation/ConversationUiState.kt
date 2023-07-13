@@ -34,12 +34,31 @@ class ConversationUiState(
     }
 }
 
-@Immutable
-data class Message @OptIn(BetaOpenAI::class) constructor(
+@OptIn(BetaOpenAI::class)
+data class Message(
     val name: String,
     val role: ChatRole,
     val content: String,
     val timestamp: String,
     val image: Int? = null,
     val authorImage: Int = if (name == "user") R.drawable.user else R.drawable.assistant
-)
+) {
+    constructor(message: Message) : this(
+        message.name,
+        message.role,
+        message.content,
+        message.timestamp,
+        message.image,
+        message.authorImage
+    )
+}
+
+//@Immutable
+//data class Message @OptIn(BetaOpenAI::class) constructor(
+//    val name: String,
+//    val role: ChatRole,
+//    val content: String,
+//    val timestamp: String,
+//    val image: Int? = null,
+//    val authorImage: Int = if (name == "user") R.drawable.user else R.drawable.assistant
+//)
