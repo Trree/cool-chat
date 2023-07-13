@@ -16,6 +16,7 @@
 
 package com.github.coolchat.conversation
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -463,10 +464,9 @@ fun RoleSelector(
             .verticalScroll(rememberScrollState())
             .semantics { contentDescription = a11yLabel }
     ) {
+        Log.i("cool-chat", "start role");
         RoleTable(onTextAdded, onMessageSent, modifier = Modifier.padding(8.dp))
     }
-
-
 }
 
 @Composable

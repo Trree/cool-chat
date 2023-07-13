@@ -24,7 +24,6 @@ import com.github.coolchat.R
 
 class ConversationUiState(
     val channelName: String,
-    val channelMembers: Int,
     initialMessages: List<Message>
 ) {
     private val _messages: MutableList<Message> = initialMessages.toMutableStateList()
@@ -42,5 +41,5 @@ data class Message @OptIn(BetaOpenAI::class) constructor(
     val content: String,
     val timestamp: String,
     val image: Int? = null,
-    val authorImage: Int = if (name == "me") R.drawable.someone_else else R.drawable.someone_else
+    val authorImage: Int = if (name == "user") R.drawable.user else R.drawable.assistant
 )

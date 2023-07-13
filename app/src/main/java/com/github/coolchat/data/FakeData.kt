@@ -16,6 +16,7 @@
 
 package com.github.coolchat.data
 
+import android.content.Context
 import com.aallam.openai.api.BetaOpenAI
 import com.aallam.openai.api.chat.ChatRole.Companion.Assistant
 import com.github.coolchat.R
@@ -35,8 +36,7 @@ private val initialMessages = listOf(
 
 val exampleUiState = ConversationUiState(
     initialMessages = initialMessages,
-    channelName = "#chat",
-    channelMembers = 42
+    channelName = "chat",
 )
 
 /**
@@ -60,3 +60,42 @@ val meProfile = ProfileScreenState(
     displayName = "aliconors",
     commonChannels = null
 )
+
+fun runOnce(f: () -> Unit): () -> Unit {
+    var executed = false
+    return {
+        if (!executed) {
+            f()
+            executed = true
+        }
+    }
+}
+
+fun initPromDataOnce(context: Context) {
+    val database by lazy { PromptDatabase.getDatabase(context) }
+    try {
+        val dao = database.promptDao();
+        dao.insert(
+            Prompt(
+                label = "/tran",
+                type = TypeSelector.PROMPT_COMMAND.value,
+                prompt = "Please translate the following content into Chinese: \\r\\n",
+                desc = "Translation"
+            )
+        )
+        dao.insert(
+            Prompt(
+                label = "Software",
+                type = TypeSelector.PROMPT_ROLE.value,
+                prompt = "I want you to act as a software developer. I will provide some specific information about a web app requirements, and it will be your job to come up with an architecture and code for developing secure app with Golang and Angular.",
+                desc = "Software"
+            )
+        )
+    }catch (_: Exception) {
+        ;
+    }
+}
+
+fun initPromData(context: Context) {
+    runOnce{ initPromDataOnce(context) }
+}

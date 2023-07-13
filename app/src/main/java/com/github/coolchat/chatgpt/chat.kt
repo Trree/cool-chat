@@ -22,7 +22,7 @@ import com.github.michaelbull.retry.retry
 const val MAX_TOKEN_NUM = 4097
 const val HIS_MESSAGE_SIZE = 4
 const val LLM_HOST = "https://api.openai.com/v1/"
-const val OPENAI_API_KEY = "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"
+const val OPENAI_API_KEY = "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"
 const val OPENAI_MODEL = "gpt-3.5-turbo"
 
 
@@ -32,7 +32,7 @@ const val OPENAI_MODEL = "gpt-3.5-turbo"
 suspend fun getChatResult(messages: List<Message>) : String {
     val useToken = 0
     val messageHis = mutableListOf<ChatMessage>()
-    Log.i("jat-chat", messages.toString())
+    Log.i("cool-chat", messages.toString())
     for(msg in messages) {
         //200 作为预估的误差补偿
         val msgTokenSize = getTokenNum(msg.content) +200

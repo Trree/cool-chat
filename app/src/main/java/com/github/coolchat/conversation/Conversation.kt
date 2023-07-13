@@ -93,9 +93,10 @@ import com.github.coolchat.chatgpt.getChatResult
 import com.github.coolchat.chatgpt.getWebPageSummarize
 import com.github.coolchat.chatgpt.isUrl
 import com.github.coolchat.components.CoolchatAppBar
-import com.github.coolchat.data.PromptCommandDatabase
+import com.github.coolchat.data.PromptDatabase
 import com.github.coolchat.data.TypeSelector
 import com.github.coolchat.data.exampleUiState
+import com.github.coolchat.data.initPromData
 import com.github.coolchat.theme.CoolchatTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -122,20 +123,20 @@ fun ConversationContent(
     onNavIconPressed: () -> Unit = { }
 ) {
     val guardian = stringResource(R.string.guardian_chat)
-
     val scrollState = rememberLazyListState()
     val topBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
-    val database by lazy { PromptCommandDatabase.getDatabase(context) }
+    val database by lazy { PromptDatabase.getDatabase(context) }
+
+    initPromData(context)
 
     Scaffold(
         topBar = {
             ChannelNameBar(
                 channelName = uiState.channelName,
-                channelMembers = uiState.channelMembers,
                 onNavIconPressed = onNavIconPressed,
                 scrollBehavior = scrollBehavior,
             )
@@ -180,9 +181,9 @@ fun ConversationContent(
 @RequiresApi(Build.VERSION_CODES.N)
 @OptIn(BetaOpenAI::class)
 private fun handleUserMessage(content: String,
-    chatRole: ChatRole, database: PromptCommandDatabase,
-    uiState: ConversationUiState, scope: CoroutineScope,
-    guardian: String,
+                              chatRole: ChatRole, database: PromptDatabase,
+                              uiState: ConversationUiState, scope: CoroutineScope,
+                              guardian: String,
 ) {
     val timeFormat = SimpleDateFormat("h:mm a", Locale.ENGLISH)
     val currentTime = timeFormat.format(Date())
@@ -191,9 +192,8 @@ private fun handleUserMessage(content: String,
     if (chatRole == User) {
         val command = checkAndGetSlashString(content)
         if (command.isNotEmpty()) {
-            val prompt =
-                database.promptCommandDao().getPrompt(TypeSelector.PROMPT_COMMAND.value, command)
-            if (prompt.isNotBlank()) {
+            val prompt = database.promptDao().getPrompt(TypeSelector.PROMPT_COMMAND.value, command)
+            if (!prompt.isNullOrEmpty()) {
                 val oldCommand = "/$command"
                 showContent = content.replaceFirst(oldCommand.toRegex(), prompt)
             }
@@ -228,7 +228,6 @@ private fun handleUserMessage(content: String,
 @Composable
 fun ChannelNameBar(
     channelName: String,
-    channelMembers: Int,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
     onNavIconPressed: () -> Unit = { }
@@ -247,12 +246,6 @@ fun ChannelNameBar(
                 Text(
                     text = channelName,
                     style = MaterialTheme.typography.titleMedium
-                )
-                // Number of members
-                Text(
-                    text = stringResource(R.string.members, channelMembers),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         },
@@ -572,7 +565,7 @@ fun ConversationPreview() {
 @Composable
 fun ChannelBarPrev() {
     CoolchatTheme {
-        ChannelNameBar(channelName = "composers", channelMembers = 52)
+        ChannelNameBar(channelName = "composers")
     }
 }
 

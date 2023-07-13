@@ -1,5 +1,6 @@
 package com.github.coolchat.chatgpt
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,9 +12,12 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.github.coolchat.data.PromptDatabase
+import com.github.coolchat.data.TypeSelector
 
 private const val ROLE_COLUMNS = 5
 
@@ -24,7 +28,12 @@ fun RoleTable(
     modifier: Modifier = Modifier
 ) {
     Column(modifier.fillMaxWidth()) {
-        val roleList = roles.map { Pair(it.key, it.value) }.toList()
+        val context = LocalContext.current
+        val database by lazy { PromptDatabase.getDatabase(context) }
+        Log.i("cool-chat", "start")
+        val roles = database.promptDao().getAllType(TypeSelector.PROMPT_ROLE.value)
+        val roleList = roles.map { Pair(it.label, it.prompt) }.toList()
+        Log.i("cool-chat", roleList.toString())
         repeat(4) { x ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -36,6 +45,9 @@ fun RoleTable(
                         return
                     }
                     val role = roleList[index]
+                    if (role.first.isNullOrEmpty() || role.second.isNullOrEmpty()) {
+                        return
+                    }
                     Text(
                         modifier = Modifier
                             .clickable(onClick = {
@@ -55,11 +67,4 @@ fun RoleTable(
         }
     }
 }
-
-//todo 支持数据库存储更新
-private val roles = mapOf(
-    "Software" to "I want you to act as a software developer. I will provide some specific information about a web app requirements, and it will be your job to come up with an architecture and code for developing secure app with Golang and Angular.",
-    "travel guide" to "I want you to act as a travel guide. I will write you my location and you will suggest a place to visit near my location. In some cases, I will also give you the type of places I will visit. You will also suggest me places of similar type that are close to my first location.",
-    "assistant" to "You are a helpful assistant."
-)
 
