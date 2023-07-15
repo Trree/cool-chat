@@ -1,6 +1,7 @@
 package com.github.coolchat.data
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -27,60 +28,66 @@ enum class LanguageSelector {
     CHINESE
 }
 
-@Entity(tableName = "promptCommand")
-data class PromptCommand(
-    @PrimaryKey val id: Int,
-    @ColumnInfo(name = "label") val label: String?,
+@Entity(tableName = "Prompts")
+data class Prompt(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @ColumnInfo(name = "label") val label: String = "",
     @ColumnInfo(name = "type") val type: Int = TypeSelector.PROMPT_ROLE.value,
     @ColumnInfo(name = "lang") val lang: Int = LanguageSelector.English.ordinal,
     @ColumnInfo(name = "priority") val priority: Int = 1,
-    @ColumnInfo(name = "prompt") val prompt: String?,
+    @ColumnInfo(name = "prompt") val prompt: String = "",
     @ColumnInfo(name = "model") val model: String = "gpt-3.5-turbo",
     @ColumnInfo(name = "temperature") val temperature: Double = 0.2,
-    @ColumnInfo(name = "desc") val desc: String?
+    @ColumnInfo(name = "desc") val desc: String = ""
 )
 
-
 @Dao
-interface PromptCommandDao {
-    @Query("SELECT * FROM promptCommand")
-    fun getAll(): List<PromptCommand>
+interface PromptDao {
+    @Query("SELECT * FROM Prompts")
+    fun getAll(): List<Prompt>
 
-    @Query("SELECT prompt from  promptCommand Where type = :type and label = :command")
+    @Query("SELECT * FROM Prompts Where type = :type")
+    fun getAllType(type: Int): List<Prompt>
+
+    @Query("SELECT prompt from  Prompts Where type = :type and label = :command Limit 1")
     fun getPrompt(type: Int, command : String) : String
 
     @Insert
-    fun insertAll(vararg users: PromptCommand)
+    fun insertAll(vararg users: Prompt)
 
     @Insert
-    fun insert(users: PromptCommand)
+    fun insert(users: Prompt)
 
     @Delete
-    fun delete(user: PromptCommand)
+    fun delete(user: Prompt)
 }
 
 
-@Database(entities = [PromptCommand::class], version = 1, exportSchema = false)
-abstract class PromptCommandDatabase : RoomDatabase() {
+@Database(entities = [Prompt::class], version = 1, exportSchema = false)
+abstract class PromptDatabase : RoomDatabase() {
 
-    abstract fun promptCommandDao(): PromptCommandDao
+    abstract fun promptDao(): PromptDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the
         // same time.
         @Volatile
-        private var INSTANCE: PromptCommandDatabase? = null
+        private var INSTANCE: PromptDatabase? = null
 
-        fun getDatabase(context: Context): PromptCommandDatabase {
+        fun getDatabase(context: Context): PromptDatabase {
             // if the INSTANCE is not null, then return it,
             // if it is, then create the database
+            Log.i("cool-chat", "start getDatabase")
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    PromptCommandDatabase::class.java,
+                    PromptDatabase::class.java,
                     "prompt.db"
-                ).allowMainThreadQueries().build()
+                ).fallbackToDestructiveMigration()
+                    .allowMainThreadQueries()
+                    .build()
                 INSTANCE = instance
+                Log.i("cool-chat", "get instance")
                 // return instance
                 instance
             }
@@ -91,19 +98,19 @@ abstract class PromptCommandDatabase : RoomDatabase() {
 
 // Declares the DAO as a private property in the constructor. Pass in the DAO
 // instead of the whole database, because you only need access to the DAO
-class PromptRepository(private val promptCommandDao: PromptCommandDao) {
+class PromptRepository(private val promptDao: PromptDao) {
 
     // Room executes all queries on a separate thread.
     // Observed Flow will notify the observer when the data has changed.
-    val allWords: List<PromptCommand> = promptCommandDao.getAll()
+    val allWords: List<Prompt> = promptDao.getAll()
 
     // By default Room runs suspend queries off the main thread, therefore, we don't need to
     // implement anything else to ensure we're not doing long running database work
     // off the main thread.
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun insert(promptCommand: PromptCommand) {
-        promptCommandDao.insert(promptCommand)
+    suspend fun insert(prompt: Prompt) {
+        promptDao.insert(prompt)
     }
 }
 
@@ -118,7 +125,7 @@ class PromptViewModel(private val repository: PromptRepository) : ViewModel() {
     /**
      * Launching a new coroutine to insert the data in a non-blocking way
      */
-    fun insert(word: PromptCommand) = viewModelScope.launch {
+    fun insert(word: Prompt) = viewModelScope.launch {
         repository.insert(word)
     }
 }

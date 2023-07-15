@@ -86,7 +86,6 @@ dependencies {
     implementation("androidx.room:room-common:2.5.0")
     implementation("androidx.room:room-ktx:2.5.0")
     implementation("androidx.room:room-runtime:2.5.0")
-    annotationProcessor("androidx.room:room-compiler:2.5.0")
     kapt("com.google.dagger:hilt-android-compiler:2.38.1")
     kapt("androidx.room:room-compiler:2.5.0")
 

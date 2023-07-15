@@ -163,6 +163,5 @@ class ConversationTest {
  */
 private val conversationTestUiState = ConversationUiState(
     initialMessages = (exampleUiState.messages.plus(exampleUiState.messages)),
-    channelName = "#composers",
-    channelMembers = 42
+    channelName = "#composers"
 )

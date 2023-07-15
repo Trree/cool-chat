@@ -18,21 +18,23 @@ import com.github.michaelbull.retry.policy.binaryExponentialBackoff
 import com.github.michaelbull.retry.policy.limitAttempts
 import com.github.michaelbull.retry.policy.plus
 import com.github.michaelbull.retry.retry
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 const val MAX_TOKEN_NUM = 4097
 const val HIS_MESSAGE_SIZE = 4
 const val LLM_HOST = "https://api.openai.com/v1/"
-const val OPENAI_API_KEY = "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"
+const val OPENAI_API_KEY = "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"
 const val OPENAI_MODEL = "gpt-3.5-turbo"
-
 
 
 @RequiresApi(Build.VERSION_CODES.N)
 @OptIn(BetaOpenAI::class)
-suspend fun getChatResult(messages: List<Message>) : String {
+suspend fun getChatResult(messages: List<Message>) : Message {
     val useToken = 0
     val messageHis = mutableListOf<ChatMessage>()
-    Log.i("jat-chat", messages.toString())
+    Log.i("cool-chat", messages.toString())
     for(msg in messages) {
         //200 作为预估的误差补偿
         val msgTokenSize = getTokenNum(msg.content) +200
@@ -52,23 +54,28 @@ suspend fun getChatResult(messages: List<Message>) : String {
 }
 
 @OptIn(BetaOpenAI::class)
-suspend fun getChatResultByChat(messages : List<ChatMessage>) : String {
-    val myOpenAiHost = OpenAIHost(baseUrl = LLM_HOST)
-    val openai = OpenAI(
-        token = OPENAI_API_KEY,
-        host = myOpenAiHost,
-        logging = LoggingConfig(LogLevel.All)
-    )
-    val chatCompletionRequest = ChatCompletionRequest(
-        model = ModelId(OPENAI_MODEL),
-        messages = messages
-    )
+suspend fun getChatResultByChat(messages: List<ChatMessage>): Message {
+    val timeFormat = SimpleDateFormat("h:mm a", Locale.ENGLISH)
+    val currentTime = timeFormat.format(Date())
+    return try {
+        val myOpenAiHost = OpenAIHost(baseUrl = LLM_HOST)
+        val openai = OpenAI(
+            token = OPENAI_API_KEY,
+            host = myOpenAiHost,
+            logging = LoggingConfig(LogLevel.All)
+        )
+        val chatCompletionRequest = ChatCompletionRequest(
+            model = ModelId(OPENAI_MODEL),
+            messages = messages
+        )
 
-    val result = retry(limitAttempts(3) + binaryExponentialBackoff(base = 10L, max = 5000L)) {
-        val completion: ChatCompletion =
-            openai.chatCompletion(chatCompletionRequest)
-        completion.choices[0].message?.content ?: ""
+        val result = retry(limitAttempts(3) + binaryExponentialBackoff(base = 10L, max = 5000L)) {
+            val completion: ChatCompletion =
+                openai.chatCompletion(chatCompletionRequest)
+            completion.choices[0].message?.content ?: ""
+        }
+        Message(ChatRole.Assistant.role, ChatRole.Assistant, result, currentTime)
+    } catch (e : Exception) {
+        Message("guardian", ChatRole.Assistant, e.message.toString(), currentTime)
     }
-
-    return result
 }
