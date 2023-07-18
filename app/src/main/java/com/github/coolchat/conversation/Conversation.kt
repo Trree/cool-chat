@@ -18,6 +18,7 @@
 
 package com.github.coolchat.conversation
 
+import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -83,12 +84,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import com.aallam.openai.api.BetaOpenAI
 import com.aallam.openai.api.chat.ChatRole
-import com.aallam.openai.api.chat.ChatRole.Companion.Assistant
 import com.aallam.openai.api.chat.ChatRole.Companion.User
 import com.github.coolchat.FunctionalityNotAvailablePopup
 import com.github.coolchat.R
+import com.github.coolchat.SettingsActivity
 import com.github.coolchat.chatgpt.getChatResult
 import com.github.coolchat.chatgpt.getWebPageSummarize
 import com.github.coolchat.chatgpt.isUrl
@@ -104,6 +106,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.streams.toList
+
 
 /**
  * Entry point for a conversation screen.
@@ -180,10 +183,11 @@ fun ConversationContent(
 
 @RequiresApi(Build.VERSION_CODES.N)
 @OptIn(BetaOpenAI::class)
-private fun handleUserMessage(content: String,
-                              chatRole: ChatRole, database: PromptDatabase,
-                              uiState: ConversationUiState, scope: CoroutineScope,
-                              guardian: String,
+private fun handleUserMessage(
+    content: String,
+    chatRole: ChatRole, database: PromptDatabase,
+    uiState: ConversationUiState, scope: CoroutineScope,
+    guardian: String,
 ) {
     val timeFormat = SimpleDateFormat("h:mm a", Locale.ENGLISH)
     val currentTime = timeFormat.format(Date())
@@ -223,6 +227,7 @@ fun ChannelNameBar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
     onNavIconPressed: () -> Unit = { }
 ) {
+    val context = LocalContext.current
     var functionalityNotAvailablePopupShown by remember { mutableStateOf(false) }
     if (functionalityNotAvailablePopupShown) {
         FunctionalityNotAvailablePopup { functionalityNotAvailablePopupShown = false }
@@ -256,7 +261,10 @@ fun ChannelNameBar(
                 imageVector = Icons.Outlined.Info,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
-                    .clickable(onClick = { functionalityNotAvailablePopupShown = true })
+                    .clickable(onClick = {
+                        val intent = Intent(context, SettingsActivity::class.java)
+                        context.startActivity(intent)
+                    })
                     .padding(horizontal = 12.dp, vertical = 16.dp)
                     .height(24.dp),
                 contentDescription = stringResource(id = R.string.info)
