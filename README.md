@@ -1,28 +1,26 @@
 
-# ChatGPT android app
+# cool chat app
 
-基于openai的接口实现Android原生的chat功能
+Implementing Android Native Chat Functionality based on OpenAI Interface
 
-## 为什么有这个项目
+## Why this project?
 
-基于Android原生的功能，提供Android更好的体验和交互
+Based on Android native functionality, it provides a better experience and interaction for Android.
 
-1. 更好的交互和输入体验
-2. 更好的prompt定制化
+1. Improved interaction and input experience.
+2. Better customization of prompts.
 
-- [x] 基于实现基本的聊天功能
-- [x] 基于openai实现ai功能
-- [x] 支持角色(prompt)设置
-- [x] 支持总结网页内容
-- [ ] 支持长按选择tell me more快速功能
-- [x] 支持自定义角色的prompt功能
-- [ ] 支持总结文本功能
-- [ ] 支持单斜杠展示所有功能
-- [ ] 支持定制化
+- [x] Implement basic chat functionality.
+- [x] Implement AI functionality based on OpenAI.
+- [x] Support role (prompt) settings.
+- [x] Support summarizing web content.
+- [ ] Support long-press selection for quick "tell me more" functionality.
+- [x] Support prompt customization for custom roles.
+- [ ] Support text summarization functionality.
+- [ ] Support displaying all functionalities with a forward slash (/).
+- [ ] Support customization.
 
 
-## 开始使用
+## Getting Started
 
-1. 准备OpenAI API Key
-2. 梯子
-3. (可选)可绑定自定义的域名直连
+1. Prepare the OpenAI API Key.
