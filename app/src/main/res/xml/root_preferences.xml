@@ -1,0 +1,15 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/messages_header">
+
+        <EditTextPreference
+            app:key="chat_host"
+            app:title="@string/chat_host"
+            app:defaultValue="https://api.openai.com/v1/"/>
+
+        <EditTextPreference
+            app:key="chat_key"
+            app:title="@string/chat_key" />
+
+    </PreferenceCategory>
+</PreferenceScreen>
