@@ -3,40 +3,13 @@
     <PreferenceCategory app:title="@string/messages_header">
 
         <EditTextPreference
-            app:key="key"
-            app:title="@string/chat_key"
-            app:useSimpleSummaryProvider="true"
-            app:defaultValue=""/>
-
-        <EditTextPreference
-            app:key="host"
+            app:key="chat_host"
             app:title="@string/chat_host"
-            app:useSimpleSummaryProvider="true"
             app:defaultValue="https://api.openai.com/v1/"/>
 
-        <ListPreference
-            app:defaultValue="reply"
-            app:entries="@array/reply_entries"
-            app:entryValues="@array/reply_values"
-            app:key="reply"
-            app:title="@string/reply_title"
-            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:key="chat_key"
+            app:title="@string/chat_key" />
 
     </PreferenceCategory>
-
-    <PreferenceCategory app:title="@string/sync_header">
-
-        <SwitchPreferenceCompat
-            app:key="sync"
-            app:title="@string/sync_title" />
-
-        <SwitchPreferenceCompat
-            app:dependency="sync"
-            app:key="attachment"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="@string/attachment_title" />
-
-    </PreferenceCategory>
-
 </PreferenceScreen>

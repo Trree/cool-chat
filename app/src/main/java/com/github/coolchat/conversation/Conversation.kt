@@ -19,7 +19,9 @@
 package com.github.coolchat.conversation
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -85,6 +87,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
+import androidx.preference.PreferenceManager
 import com.aallam.openai.api.BetaOpenAI
 import com.aallam.openai.api.chat.ChatRole
 import com.aallam.openai.api.chat.ChatRole.Companion.User
@@ -163,7 +166,9 @@ fun ConversationContent(
             )
             UserInput(
                 onMessageSent = {chatRole, content ->
-                    handleUserMessage(content, chatRole, database,
+                    val sharedPreferences: SharedPreferences =
+                        PreferenceManager.getDefaultSharedPreferences(context)
+                    handleUserMessage(sharedPreferences, content, chatRole, database,
                         uiState, scope, guardian)
                 },
                 resetScroll = {
@@ -184,6 +189,7 @@ fun ConversationContent(
 @RequiresApi(Build.VERSION_CODES.N)
 @OptIn(BetaOpenAI::class)
 private fun handleUserMessage(
+    sharedPreferences: SharedPreferences,
     content: String,
     chatRole: ChatRole, database: PromptDatabase,
     uiState: ConversationUiState, scope: CoroutineScope,
@@ -191,6 +197,14 @@ private fun handleUserMessage(
 ) {
     val timeFormat = SimpleDateFormat("h:mm a", Locale.ENGLISH)
     val currentTime = timeFormat.format(Date())
+    val openKey = sharedPreferences.getString("chat_key", "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").toString()
+    if (openKey.isEmpty()) {
+        uiState.addMessage(
+            Message(guardian, chatRole, "请先设置openai的key", currentTime)
+        )
+        return
+    }
+    val host = sharedPreferences.getString("chat_host", "https:api.openai.com/v1/").toString()
 
     var showContent = content
     if (chatRole == User) {
@@ -212,7 +226,7 @@ private fun handleUserMessage(
                 getWebPageSummarize(showContent)
             } else {
                 val messages = uiState.messages.stream().filter { it.name != guardian }.toList()
-                getChatResult(messages)
+                getChatResult(messages, openKey, host)
             }
             uiState.addMessage(Message(result))
         }
